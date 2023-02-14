@@ -2,10 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
 import db from '../db';
-import { IUser } from '../types/hello';
+import { IAuth } from '../types';
 
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.header('Authorization');
+
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
@@ -18,6 +19,14 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
   try {
     const decode = jwt.verify(token, config.accessTokenSecret);
     const { id } = decode as any;
+
+    if (!id) {
+      return res.status(404).send({
+        statusCode: 404,
+        message: 'Không tìm thấy!',
+      });
+    }
+
     req.accountId = id;
 
     next();
@@ -32,14 +41,20 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
 export const verifyAdminToken = (req: Request, res: Response, next: NextFunction) => {
   try {
     const accountId = req.accountId;
-
     if (accountId) {
-      db.query<IUser[]>('SELECT role FROM account WHERE id = ?', [accountId], (err, roles) => {
+      db.query<IAuth[]>('SELECT * FROM account WHERE id = ?', [accountId], (err, users) => {
         if (err) {
           throw err;
         }
 
-        if (roles[0].role !== 'admin') {
+        if (!users.length) {
+          return res.status(404).send({
+            statusCode: 404,
+            message: 'Không thể xác định người dùng!',
+          });
+        }
+
+        if (users[0].role !== 'admin') {
           return res.status(401).send({
             statusCode: 401,
             message: 'Bạn không có quyền truy cập!',

@@ -1,11 +1,13 @@
-import { Request, Router } from 'express';
+import { Router } from 'express';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+
 import { config } from '../config';
 import db from '../db';
-import { verifyAdminToken, verifyToken } from '../middleware/auth';
-import { IUser, IUserProfile } from '../types/hello';
+import { verifyToken } from '../middleware/auth';
+import { IAuth, IUserProfile } from '../types';
 
-const generateTokens = (payload: IUser) => {
+const generateTokens = (payload: IAuth) => {
   const { id } = payload;
 
   const accessToken = jwt.sign({ id }, config.accessTokenSecret, {
@@ -20,34 +22,37 @@ const generateTokens = (payload: IUser) => {
 };
 
 export const loginRouter = (router: Router) => {
-  router.post('/users/login', (req, res) => {
+  router.post('/auth/login', (req, res) => {
     const { username, password } = req.body;
 
-    db.query<IUser[]>(
-      'SELECT * FROM account WHERE account.username = ? AND account.password = ?',
-      [username, password],
-      (err, accounts) => {
-        if (err) {
-          throw err;
-        }
+    db.query<IAuth[]>('SELECT * FROM account WHERE account.username = ?', [username], async (err, users) => {
+      if (err) {
+        throw err;
+      }
 
-        const user = accounts.find((account) => account.username == username && account.password == password);
+      if (!users.length) {
+        return res.status(403).send({
+          statusCode: 403,
+          message: 'Tài khoản hoặc mật khẩu không đúng!',
+        });
+      }
 
-        if (!user) {
-          return res.status(403).send({
-            statusCode: 403,
-            message: 'Tài khoản hoặc mật khẩu không đúng!',
-          });
-        }
+      const isValid = await bcrypt.compare(password, users[0].password);
 
-        const tokens = generateTokens(user);
+      if (!isValid) {
+        return res.status(403).send({
+          statusCode: 403,
+          message: 'Tài khoản hoặc mật khẩu không đúng!',
+        });
+      }
 
-        res.send(tokens);
-      },
-    );
+      const tokens = generateTokens(users[0]);
+
+      res.send(tokens);
+    });
   });
 
-  router.post('/refreshToken', (req, res) => {
+  router.post('/auth/refreshToken', (req, res) => {
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
@@ -61,21 +66,19 @@ export const loginRouter = (router: Router) => {
       const decode = jwt.verify(refreshToken, config.refreshTokenSecret);
       const { id } = decode as any;
 
-      db.query<IUser[]>('SELECT * FROM account WHERE id = ?', [id], (err, users) => {
+      db.query<IAuth[]>('SELECT * FROM account WHERE id = ?', [id], (err, users) => {
         if (err) {
           throw err;
         }
 
-        const user = users.find((user) => user.id == id);
-
-        if (!user) {
+        if (!users.length) {
           return res.status(403).send({
             statusCode: 403,
             message: 'Lỗi xác thực tài khoản!',
           });
         }
 
-        const tokens = generateTokens(user);
+        const tokens = generateTokens(users[0]);
 
         res.send(tokens);
       });
@@ -87,17 +90,13 @@ export const loginRouter = (router: Router) => {
     }
   });
 
-  router.get('/users/me', verifyToken, (req, res) => {
-    db.query<IUserProfile[]>(
-      'SELECT CONCAT(firstName, " ", lastName) as fullName, address FROM user_profiles WHERE accountId = ?',
-      [req.accountId],
-      (err, users) => {
-        if (err) {
-          throw err;
-        }
+  router.get('/auth/me', verifyToken, (req, res) => {
+    db.query<IUserProfile[]>('SELECT * FROM account WHERE id = ?', [req.accountId], (err, users) => {
+      if (err) {
+        throw err;
+      }
 
-        res.send(users[0]);
-      },
-    );
+      res.send(users[0]);
+    });
   });
 };

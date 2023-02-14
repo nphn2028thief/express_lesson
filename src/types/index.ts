@@ -1,8 +1,40 @@
 import { RowDataPacket } from 'mysql2';
 
-export interface IUserTest extends RowDataPacket {
+export interface IAuth extends RowDataPacket {
   id: string;
-  name: string;
+  username: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  address: string;
+  role: string;
+  otpCode: string;
+}
+
+export interface IUserProfile extends RowDataPacket {
+  id: string;
+  firstName: string;
+  lastName: string;
+  address: string;
+  accountId: string;
+}
+
+export interface IUser extends RowDataPacket {
+  firstName: string;
+  lastName: string;
+  address: string;
+  role: string;
+}
+
+export interface ITokenInfo extends RowDataPacket {
+  id: string;
+  username: string;
+  password: string;
+  fullName: string;
+  address: string;
+  accountId: string;
+  refreshToken: string;
 }
 
 export interface ICourse extends RowDataPacket {
@@ -11,31 +43,4 @@ export interface ICourse extends RowDataPacket {
   description: string;
   image: string;
   level: string;
-  userId: string;
-}
-
-export interface IAssocUserCourse extends RowDataPacket {
-  id: string;
-  userId: string;
-  courseId: string;
-}
-
-export interface IUser {
-  id: string;
-  username: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  address: string;
-}
-
-export interface ILoginInfo {
-  username: string;
-  password: string;
-}
-
-export interface IRegisterInfo extends ILoginInfo {
-  firstName: string;
-  lastName: string;
-  address: string;
 }
