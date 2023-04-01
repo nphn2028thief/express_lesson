@@ -1,73 +1,60 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { config } from '../config';
-import db from '../db';
-import { IAuth } from '../types';
+import config from '../config';
 
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.header('Authorization');
-
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
     return res.status(401).send({
-      statusCode: 401,
-      message: 'Không thể xác thực người dùng!',
+      message: 'Unable to authenticate user!',
     });
   }
 
   try {
     const decode = jwt.verify(token, config.accessTokenSecret);
-    const { id } = decode as any;
+    const { _id } = decode as any;
 
-    if (!id) {
+    if (!_id) {
       return res.status(404).send({
-        statusCode: 404,
-        message: 'Không tìm thấy!',
+        message: 'Not found!',
       });
     }
 
-    req.accountId = id;
-
+    req.accountId = _id;
     next();
   } catch (error) {
     return res.status(403).send({
-      statusCode: 403,
-      message: 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!',
+      message: 'Login session has expired, please login again!',
     });
   }
 };
 
-export const verifyAdminToken = (req: Request, res: Response, next: NextFunction) => {
+export const verifyRefreshToken = (req: Request, res: Response, next: NextFunction) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(401).send({
+      message: 'Invalid login information!',
+    });
+  }
+
   try {
-    const accountId = req.accountId;
-    if (accountId) {
-      db.query<IAuth[]>('SELECT * FROM account WHERE id = ?', [accountId], (err, users) => {
-        if (err) {
-          throw err;
-        }
+    const decode = jwt.verify(refreshToken, config.refreshTokenSecret);
+    const { _id } = decode as any;
 
-        if (!users.length) {
-          return res.status(404).send({
-            statusCode: 404,
-            message: 'Không thể xác định người dùng!',
-          });
-        }
-
-        if (users[0].role !== 'admin') {
-          return res.status(401).send({
-            statusCode: 401,
-            message: 'Bạn không có quyền truy cập!',
-          });
-        }
-
-        next();
+    if (!_id) {
+      return res.status(404).send({
+        message: 'Not found!',
       });
     }
+
+    req.accountId = _id;
+    next();
   } catch (error) {
     return res.status(403).send({
-      statusCode: 403,
-      message: 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!',
+      message: 'Login session has expired, please login again!',
     });
   }
 };

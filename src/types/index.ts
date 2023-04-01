@@ -1,46 +1,41 @@
-import { RowDataPacket } from 'mysql2';
+import { Types } from 'mongoose';
 
-export interface IAuth extends RowDataPacket {
-  id: string;
-  username: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  address: string;
-  role: string;
-  otpCode: string;
-}
-
-export interface IUserProfile extends RowDataPacket {
-  id: string;
-  firstName: string;
-  lastName: string;
-  address: string;
-  accountId: string;
-}
-
-export interface IUser extends RowDataPacket {
-  firstName: string;
-  lastName: string;
-  address: string;
-  role: string;
-}
-
-export interface ITokenInfo extends RowDataPacket {
-  id: string;
-  username: string;
-  password: string;
-  fullName: string;
-  address: string;
-  accountId: string;
-  refreshToken: string;
-}
-
-export interface ICourse extends RowDataPacket {
-  id: string;
+export interface IProduct {
   name: string;
-  description: string;
+  amount: number;
   image: string;
-  level: string;
+  modelImage: string;
+  currentPrice: number;
+  saleOff?: number;
+  newPrice?: number;
+  colors: Types.DocumentArray<IColor>;
+  sizes: Types.DocumentArray<ISize>;
+  slug: string;
+  createAt: Date;
+  updateAt: Date;
 }
+
+export interface IColor {
+  name: string;
+  createAt: Date;
+  updateAt: Date;
+}
+
+export interface ISize {
+  symbol?: string;
+  measure?: string;
+  createAt: Date;
+  updateAt: Date;
+}
+
+// export interface IColorsOnProducts extends RowDataPacket {
+//   productId: string;
+//   colorId: string;
+// }
+
+// export interface ISizesOnProducts extends RowDataPacket {
+//   productId: string;
+//   sizeId: string;
+// }
+
+export * from './media';

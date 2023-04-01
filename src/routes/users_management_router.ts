@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { RowDataPacket } from 'mysql2';
-import db from '../db';
+import db from '../config/db';
 import { verifyToken, verifyAdminToken } from '../middleware/auth';
-import { IUserProfile, IUser, IAuth } from '../types';
+import { IUser } from '../types';
 
-interface IAccountId extends RowDataPacket {
-  accountId: string;
+interface IAmount extends RowDataPacket {
+  amount: number;
 }
 
 export const usersManagementRouter = (router: Router) => {
@@ -22,63 +22,67 @@ export const usersManagementRouter = (router: Router) => {
         });
       }
 
-      db.query<IUser[]>(
-        'SELECT * FROM account WHERE firstName LIKE ? OR lastName LIKE ? LIMIT ? OFFSET ?',
-        [keyword, keyword, limit, (page - 1) * limit],
-        (err, users) => {
-          if (err) {
-            throw err;
-          }
+      // db.query<IUser[]>(
+      //   'SELECT * FROM user_profile WHERE firstName LIKE ? OR lastName LIKE ? LIMIT ? OFFSET ?',
+      //   [keyword, keyword, limit, (page - 1) * limit],
+      //   (err, users) => {
+      //     if (err) {
+      //       throw err;
+      //     }
 
-          if (!users.length) {
-            return res.status(404).send({
-              statusCode: 404,
-              message: 'Không tìm thấy người dùng nào!',
-            });
-          }
+      //     if (!users.length) {
+      //       return res.status(404).send({
+      //         statusCode: 404,
+      //         message: 'Không tìm thấy người dùng nào!',
+      //       });
+      //     }
 
-          res.send(users);
-        },
-      );
+      //     res.json({
+      //       users,
+      //       totalData: users.length,
+      //     });
+      //   },
+      // );
     } else {
-      db.query<IUser[]>(
-        'SELECT * FROM account WHERE firstName LIKE ? OR lastName LIKE ?',
-        [keyword, keyword],
-        (err, users) => {
-          if (err) {
-            throw err;
-          }
-
-          if (!users.length) {
-            return res.status(404).send({
-              statusCode: 404,
-              message: 'Không tìm thấy người dùng nào!',
-            });
-          }
-
-          res.send(users);
-        },
-      );
+      // db.query<IUser[]>(
+      //   'SELECT * FROM user_profile WHERE firstName LIKE ? OR lastName LIKE ?',
+      //   [keyword, keyword],
+      //   (err, users) => {
+      //     if (err) {
+      //       throw err;
+      //     }
+      //     if (!users.length) {
+      //       return res.status(404).send({
+      //         statusCode: 404,
+      //         message: 'Không tìm thấy người dùng nào!',
+      //       });
+      //     }
+      //     res.json({
+      //       data: users,
+      //       totalData: users.length,
+      //     });
+      //   },
+      // );
     }
   });
 
   router.get('/users/:id', verifyToken, verifyAdminToken, (req, res) => {
     const accountId = req.params.id;
 
-    db.query<IUser[]>('SELECT * FROM account WHERE id = ?', [accountId], (err, users) => {
-      if (err) {
-        throw err;
-      }
+    // db.query<IUser[]>('SELECT * FROM user_profile WHERE accountId = ?', [accountId], (err, users) => {
+    //   if (err) {
+    //     throw err;
+    //   }
 
-      if (!users.length) {
-        return res.status(404).send({
-          statusCode: 404,
-          message: 'Không tìm thấy người dùng nào!',
-        });
-      }
+    //   if (!users.length) {
+    //     return res.status(404).send({
+    //       statusCode: 404,
+    //       message: 'Không tìm thấy người dùng nào!',
+    //     });
+    //   }
 
-      res.send(users[0]);
-    });
+    //   res.send(users[0]);
+    // });
   });
 
   // router.patch('/users/:id', verifyToken, verifyAdminToken, (req, res) => {

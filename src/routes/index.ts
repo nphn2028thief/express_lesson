@@ -1,20 +1,20 @@
 import express from 'express';
-import { loginRouter } from './login_router';
-import { registerRouter } from './register_router';
-import { forgotPasswordRouter } from './forgot_password_router';
-import { userRouter } from './user_router';
-import { usersManagementRouter } from './users_management_router';
-import { courseRouter } from './course_router';
+import authRouter from './auth_router';
+import favoriteRouter from './favorite_router';
+import genreRouter from './genre_router';
+import mediaRouter from './media_router';
+import personRouter from './person_router';
+import reviewRouter from './review_router';
 
 const router = express.Router();
 
 const routes = () => {
-  loginRouter(router);
-  registerRouter(router);
-  forgotPasswordRouter(router);
-  userRouter(router);
-  usersManagementRouter(router);
-  courseRouter(router);
+  authRouter(router);
+  favoriteRouter(router);
+  mediaRouter(router);
+  personRouter(router);
+  reviewRouter(router);
+  genreRouter(router);
 
   return router;
 };
