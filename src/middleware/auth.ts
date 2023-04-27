@@ -23,6 +23,7 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
     }
 
     req.accountId = _id;
+
     next();
   } catch (error) {
     return res.status(403).send({

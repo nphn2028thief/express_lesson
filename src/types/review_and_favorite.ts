@@ -7,9 +7,9 @@ enum EMediaType {
 
 export interface IFavorite {
   accountId: ObjectId;
-  displayName: string;
+  // displayName: string;
   mediaType: EMediaType;
-  mediaId: string;
+  mediaId: number;
   mediaTitle: string;
   mediaPoster: string;
   mediaRate: number;

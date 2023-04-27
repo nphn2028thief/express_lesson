@@ -8,7 +8,7 @@ import { connect } from './config/db';
 declare global {
   namespace Express {
     interface Request {
-      accountId?: string;
+      accountId: string;
     }
   }
 }

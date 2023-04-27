@@ -22,20 +22,30 @@ class FavoriteController {
 
   addFavorite = async (req: Request, res: Response) => {
     const accountId = req.accountId;
-    const { mediaId } = req.body;
+    const { mediaType, mediaId, mediaTitle, mediaPoster, mediaRate } = req.body;
+
+    if (!mediaType || !mediaId || !mediaTitle || !mediaPoster || !mediaRate) {
+      return res.status(400).send({
+        message: 'Invalid data!',
+      });
+    }
 
     try {
       if (accountId) {
         const _id = mongoose.Types.ObjectId.createFromHexString(accountId);
 
-        const isFavorite = await favoriteSchema.findOne({
+        await favoriteSchema.create({
           accountId: _id,
+          mediaType,
           mediaId,
+          mediaTitle,
+          mediaPoster,
+          mediaRate,
         });
 
-        if (isFavorite) {
-          res.json(isFavorite);
-        }
+        res.send({
+          message: 'Add Media to Favorite List Successfully!',
+        });
       }
     } catch (error) {
       res.status(500).send({
@@ -48,26 +58,41 @@ class FavoriteController {
     const { favoriteId } = req.params;
     const accountId = req.accountId;
 
+    if (!favoriteId) {
+      return res.status(400).send({
+        message: 'Invalid data!',
+      });
+    }
+
     try {
       if (accountId) {
-        const _id = mongoose.Types.ObjectId.createFromHexString(accountId);
+        const _favoriteId = mongoose.Types.ObjectId.createFromHexString(favoriteId);
+        // const _accountId = mongoose.Types.ObjectId.createFromHexString(accountId);
 
-        const review = await favoriteSchema.findOne({
-          _id: mongoose.Types.ObjectId.createFromHexString(favoriteId),
-          accountId: _id,
-        });
+        const foundAndDeletedFavorite = await favoriteSchema.findByIdAndDelete({ _id: _favoriteId });
 
-        if (!review) {
+        if (foundAndDeletedFavorite) {
+          return res.send({
+            message: 'Remove Review Successfully!',
+          });
+        } else {
           return res.status(404).send({
-            message: 'Not Found!',
+            message: 'No Favorite Found!',
           });
         }
 
-        await review.deleteOne();
+        // const review = await favoriteSchema.findOne({
+        //   _id: _favoriteId,
+        //   accountId: _accountId,
+        // });
 
-        res.send({
-          message: 'Remove Review Successfully!',
-        });
+        // if (!review) {
+        // return res.status(404).send({
+        //   message: 'Not Found!',
+        // });
+        // }
+
+        // await review.deleteOne();
       }
     } catch (error) {
       return res.status(500).send({

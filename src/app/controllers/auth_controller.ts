@@ -8,12 +8,13 @@ import accountSchema from '../models/auth_model';
 class AuthController {
   generateTokens(_id: mongoose.Types.ObjectId) {
     const accessToken = jwt.sign({ _id }, config.accessTokenSecret, {
-      expiresIn: '600s',
-    });
-    const refreshToken = jwt.sign({ _id }, config.refreshTokenSecret, {
       expiresIn: '7d',
     });
-    return { accessToken, refreshToken };
+
+    // const refreshToken = jwt.sign({ _id }, config.refreshTokenSecret, {
+    //   expiresIn: '7d',
+    // });
+    return { accessToken };
   }
 
   register = async (req: Request, res: Response) => {
@@ -90,25 +91,25 @@ class AuthController {
   getMe = async (req: Request, res: Response) => {
     const id = req.accountId;
 
-    if (id) {
-      const account = await accountSchema.findById({
-        _id: mongoose.Types.ObjectId.createFromHexString(id),
-      });
+    // if (id) {
+    const account = await accountSchema.findById({
+      _id: mongoose.Types.ObjectId.createFromHexString(id),
+    });
 
-      if (!account) {
-        return res.status(400).send({
-          message: 'User authenticate error!',
-        });
-      }
-
-      res.json({
-        _id: account._id,
-        password: account.password,
-        firstName: account.firstName,
-        lastName: account.lastName,
-        image: account.image,
+    if (!account) {
+      return res.status(400).send({
+        message: 'User authenticate error!',
       });
     }
+
+    res.json({
+      _id: account._id,
+      password: account.password,
+      firstName: account.firstName,
+      lastName: account.lastName,
+      image: account.image,
+    });
+    // }
   };
 
   updateMe = async (req: Request, res: Response) => {
