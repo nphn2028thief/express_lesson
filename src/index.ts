@@ -2,8 +2,8 @@ import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import routes from './src/routes';
-import { connect } from './src/config/db';
+import routes from './routes';
+import { connect } from './config/db';
 
 declare global {
   namespace Express {
