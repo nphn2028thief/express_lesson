@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "ts-node-dev src/index.ts"
+    "start": "ts-node-dev src/index.ts",
+    "dev": "node index.js"
   },
   "keywords": [],
   "author": "nguyen phan hoai nhan",
