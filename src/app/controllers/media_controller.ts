@@ -26,12 +26,24 @@ class MediaController {
     try {
       const mediaDetail = await tmdbApi.mediaDetail({ mediaType, mediaId });
       const recommend = await tmdbApi.mediaRecommend({ mediaType, mediaId });
-      // const id = req.accountId;
 
       mediaDetail.credits = await tmdbApi.mediaCredits({ mediaType, mediaId });
       mediaDetail.videos = await tmdbApi.mediaVideos({ mediaType, mediaId });
       mediaDetail.recommend = recommend.results;
       mediaDetail.image = await tmdbApi.mediaImages({ mediaType, mediaId });
+
+      // const account = await accountSchema.findById({ _id: mongoose.Types.ObjectId.createFromHexString(id) });
+
+      // if (!account) {
+      //   return res.status(400).send({
+      //     message: 'User authenticate error!',
+      //   });
+      // }
+
+      // console.log('Lot vao day');
+
+      // const isFavorite = await favoriteSchema.findOne({ accountId: account._id, mediaId });
+      // mediaDetail.isFavorite = isFavorite !== null;
 
       // if (id) {
       //   const _id = mongoose.Types.ObjectId.createFromHexString(id);
