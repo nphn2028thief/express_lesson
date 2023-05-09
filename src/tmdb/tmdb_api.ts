@@ -1,5 +1,5 @@
 import axios_client from '../http/axios_client';
-import { IMediaDetail, IMediaList, IMediaSearch } from '../types';
+import { IMediaDetail, IMediaList, IMediaSearch, ITvEpisode } from '../types';
 import tmdbEndpoints from './tmdb_endpoints';
 
 export const tmdbApi = {
@@ -16,6 +16,8 @@ export const tmdbApi = {
   mediaRecommend: async (params: IMediaDetail) => axios_client.get(tmdbEndpoints.mediaRecommend(params)),
 
   mediaImages: async (params: IMediaDetail) => axios_client.get(tmdbEndpoints.mediaImages(params)),
+
+  tvEpisodes: async (params: ITvEpisode) => axios_client.get(tmdbEndpoints.tvEpisodes(params)),
 
   mediaSearch: async (params: IMediaSearch) => axios_client.get(tmdbEndpoints.mediaSearch(params)),
 

@@ -68,6 +68,20 @@ class MediaController {
     }
   };
 
+  getTvEpisode = async (req: Request, res: Response) => {
+    const { tvId, seasonNumber } = req.params;
+
+    try {
+      const response = await tmdbApi.tvEpisodes({ tvId, seasonNumber });
+
+      res.json(response);
+    } catch (error) {
+      res.status(500).send({
+        message: 'Oops! Something Went Wrong!',
+      });
+    }
+  };
+
   mediaSearch = async (req: Request, res: Response) => {
     const page = req.query.page;
     const keyword = String(req.query.query);

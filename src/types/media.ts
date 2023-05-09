@@ -11,3 +11,8 @@ export interface IMediaDetail extends Pick<IMediaList, 'mediaType'> {
 export interface IMediaSearch extends Omit<IMediaList, 'mediaCategory'> {
   query: string;
 }
+
+export interface ITvEpisode {
+  tvId: string;
+  seasonNumber: string;
+}

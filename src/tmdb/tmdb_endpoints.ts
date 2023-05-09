@@ -1,4 +1,4 @@
-import { IMediaDetail, IMediaList, IMediaSearch } from '../types';
+import { IMediaDetail, IMediaList, IMediaSearch, ITvEpisode } from '../types';
 import tmdbConfig from './tmdb.config';
 
 const tmdbEndpoints = {
@@ -38,6 +38,12 @@ const tmdbEndpoints = {
     const { mediaType, mediaId } = parameters;
 
     return tmdbConfig.getUrl(`${mediaType}/${mediaId}/images`);
+  },
+
+  tvEpisodes: (parameters: ITvEpisode) => {
+    const { tvId, seasonNumber } = parameters;
+
+    return tmdbConfig.getEpisode(tvId, seasonNumber);
   },
 
   mediaSearch: (parameters: IMediaSearch) => {

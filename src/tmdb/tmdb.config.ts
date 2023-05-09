@@ -9,4 +9,8 @@ const getUrl = (endpoint: string, query?: any) => {
   return `${tmdbBaseUrl}/${endpoint}?api_key=${apiKey}&${qs}`;
 };
 
-export default { getUrl };
+const getEpisode = (tvId: string, seasonNumber: string) => {
+  return `${tmdbBaseUrl}/tv/${tvId}/season/${seasonNumber}?api_key=${apiKey}`;
+};
+
+export default { getUrl, getEpisode };
