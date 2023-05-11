@@ -5,7 +5,7 @@ const mediaRouter = (router: Router) => {
   router.get('/:mediaType/:mediaCategory', mediaController.getMediaList);
   router.get('/:mediaType/detail/:mediaId', mediaController.getMediaDetail);
   router.get('/tv/:tvId/season/:seasonNumber', mediaController.getTvEpisode);
-  router.get('/:mediaType', mediaController.mediaSearch);
+  router.get('/search/:mediaType', mediaController.mediaSearch);
 };
 
 export default mediaRouter;

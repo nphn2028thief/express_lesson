@@ -89,7 +89,7 @@ class MediaController {
 
     if (!page) {
       return res.status(400).send({
-        message: 'Invalid data!',
+        message: 'Invalid data 2!',
       });
     }
 

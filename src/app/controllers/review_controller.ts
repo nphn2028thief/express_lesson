@@ -4,17 +4,29 @@ import reviewSchema from '../models/review_model';
 
 class ReviewController {
   getReviews = async (req: Request, res: Response) => {
-    // const id = req.accountId;
+    const accountId = req.accountId;
 
     try {
-      // if (id) {
-      //   const _id = mongoose.Types.ObjectId.createFromHexString(id);
-      //   const reviews = await reviewSchema.find({ accountId: _id }).sort('-createdAt');
+      const reviews = await reviewSchema.find({ accountId }).sort('-createdAt');
+      res.json(reviews);
+    } catch (error) {
+      res.status(500).send({
+        message: 'Oops! Something Went Wrong!',
+      });
+    }
+  };
 
-      //   res.json(reviews);
-      // }
-      const reviews = await reviewSchema.find().sort('-createdAt');
+  getReviewsByMediaId = async (req: Request, res: Response) => {
+    const { mediaType, mediaId } = req.params;
 
+    if (!mediaType || !mediaId) {
+      return res.status(400).send({
+        message: 'Invalid data!',
+      });
+    }
+
+    try {
+      const reviews = await reviewSchema.find({ mediaType, mediaId }).sort('-createdAt');
       res.json(reviews);
     } catch (error) {
       res.status(500).send({
@@ -24,32 +36,26 @@ class ReviewController {
   };
 
   createReview = async (req: Request, res: Response) => {
-    const { mediaId } = req.params;
-    const id = req.accountId;
-    const { displayName, mediaType, mediaTitle, mediaPoster, content } = req.body;
+    const accountId = req.accountId;
+    const { mediaType, mediaId, mediaTitle, mediaPoster, content } = req.body;
 
-    if (!displayName || !mediaType || !mediaTitle || !mediaPoster || !content) {
+    if (!mediaType || !mediaId || !mediaTitle || !mediaPoster || !content) {
       return res.status(400).send({
         message: 'Invalid data!',
       });
     }
 
     try {
-      if (id) {
-        const _id = mongoose.Types.ObjectId.createFromHexString(id);
+      const review = await reviewSchema.create({
+        accountId,
+        mediaType,
+        mediaId,
+        mediaTitle,
+        mediaPoster,
+        content,
+      });
 
-        const review = await reviewSchema.create({
-          accountId: _id,
-          displayName,
-          mediaType,
-          mediaId,
-          mediaTitle,
-          mediaPoster,
-          content,
-        });
-
-        res.json(review);
-      }
+      res.json(review);
     } catch (error) {
       return res.status(500).send({
         message: 'Oops! Something Went Wrong!',
@@ -59,28 +65,23 @@ class ReviewController {
 
   deleteReview = async (req: Request, res: Response) => {
     const { reviewId } = req.params;
-    const id = req.accountId;
+    const accountId = req.accountId;
 
     try {
-      if (id) {
-        const _id = mongoose.Types.ObjectId.createFromHexString(id);
+      const _reviewId = mongoose.Types.ObjectId.createFromHexString(reviewId);
 
-        const review = await reviewSchema.findOne({
-          _id: mongoose.Types.ObjectId.createFromHexString(reviewId),
-          accountId: _id,
-        });
+      const foundAndDeleteReview = await reviewSchema.findOneAndDelete({ _id: _reviewId, accountId });
 
-        if (!review) {
-          return res.status(404).send({
-            message: 'Not Found!',
-          });
-        }
-
-        await review.deleteOne();
-        res.send({
-          message: 'Remove Review Successfully!',
+      if (foundAndDeleteReview) {
+        return res.json({
+          messagE: 'Delete review successfully!',
+          reviewId,
         });
       }
+
+      return res.status(404).send({
+        message: 'No review found!',
+      });
     } catch (error) {
       return res.status(500).send({
         message: 'Oops! Something Went Wrong!',

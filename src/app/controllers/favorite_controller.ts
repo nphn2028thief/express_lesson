@@ -61,7 +61,7 @@ class FavoriteController {
     try {
       const _id = mongoose.Types.ObjectId.createFromHexString(accountId);
 
-      const newFavorite = await favoriteSchema.create({
+      const favorite = await favoriteSchema.create({
         accountId: _id,
         mediaType,
         mediaId,
@@ -72,7 +72,7 @@ class FavoriteController {
 
       res.json({
         message: 'Add media to favorite list successfully!',
-        data: newFavorite,
+        data: favorite,
       });
     } catch (error) {
       res.status(500).send({
@@ -106,19 +106,6 @@ class FavoriteController {
         message: 'No favorite found!',
         favoriteId,
       });
-
-      // const review = await favoriteSchema.findOne({
-      //   _id: _favoriteId,
-      //   accountId: _accountId,
-      // });
-
-      // if (!review) {
-      // return res.status(404).send({
-      //   message: 'Not Found!',
-      // });
-      // }
-
-      // await review.deleteOne();
     } catch (error) {
       return res.status(500).send({
         message: 'Oops! Something Went Wrong!',

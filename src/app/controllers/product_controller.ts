@@ -10,7 +10,8 @@ class ProductController {
 
     if (!name || !amount || !image || !modelImage || !currentPrice || !colors) {
       return res.status(400).send({
-        message: 'Invalid data!',
+        // message: 'Invalid data!',
+        mess: 'haha',
       });
     }
 

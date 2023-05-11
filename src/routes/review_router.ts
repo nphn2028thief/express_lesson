@@ -3,8 +3,9 @@ import reviewController from '../app/controllers/review_controller';
 import { verifyToken } from '../middleware/auth';
 
 const reviewRouter = (router: Router) => {
-  router.get('/reviews', reviewController.getReviews);
-  router.post('/reviews/:mediaId', verifyToken, reviewController.createReview);
+  router.get('/reviews', verifyToken, reviewController.getReviews);
+  router.get('/reviews/:mediaType/:mediaId', reviewController.getReviewsByMediaId);
+  router.post('/reviews', verifyToken, reviewController.createReview);
   router.delete('/reviews/:reviewId', verifyToken, reviewController.deleteReview);
 };
 
