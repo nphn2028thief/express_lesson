@@ -5,7 +5,7 @@ import favoriteSchema from '../models/favorite_model';
 class FavoriteController {
   checkFavorite = async (req: Request, res: Response) => {
     const { mediaId } = req.body;
-    const accountId = req.accountId;
+    const account = req.accountId;
 
     if (!mediaId) {
       return res.status(400).send({
@@ -14,8 +14,7 @@ class FavoriteController {
     }
 
     try {
-      const _id = mongoose.Types.ObjectId.createFromHexString(accountId);
-      const hasFavorite = await favoriteSchema.find({ accountId: _id, mediaId });
+      const hasFavorite = await favoriteSchema.find({ account, mediaId });
 
       if (!hasFavorite.length) {
         return res.status(404).send({
@@ -34,11 +33,10 @@ class FavoriteController {
   };
 
   getMyFavorites = async (req: Request, res: Response) => {
-    const accountId = req.accountId;
+    const account = req.accountId;
 
     try {
-      const _id = mongoose.Types.ObjectId.createFromHexString(accountId);
-      const favorites = await favoriteSchema.find({ accountId: _id }).sort('-createdAt');
+      const favorites = await favoriteSchema.find({ account }).sort('-createdAt');
 
       res.json(favorites);
     } catch (error) {
@@ -49,7 +47,7 @@ class FavoriteController {
   };
 
   addFavorite = async (req: Request, res: Response) => {
-    const accountId = req.accountId;
+    const account = req.accountId;
     const { mediaType, mediaId, mediaTitle, mediaPoster, mediaRate } = req.body;
 
     if (!mediaType || !mediaId || !mediaTitle || !mediaPoster || !mediaRate) {
@@ -59,10 +57,8 @@ class FavoriteController {
     }
 
     try {
-      const _id = mongoose.Types.ObjectId.createFromHexString(accountId);
-
       const favorite = await favoriteSchema.create({
-        accountId: _id,
+        account,
         mediaType,
         mediaId,
         mediaTitle,
@@ -91,9 +87,9 @@ class FavoriteController {
     }
 
     try {
-      const _favoriteId = mongoose.Types.ObjectId.createFromHexString(favoriteId);
+      const _id = mongoose.Types.ObjectId.createFromHexString(favoriteId);
 
-      const foundAndDeletedFavorite = await favoriteSchema.findByIdAndDelete({ _id: _favoriteId });
+      const foundAndDeletedFavorite = await favoriteSchema.findByIdAndDelete({ _id });
 
       if (foundAndDeletedFavorite) {
         return res.json({

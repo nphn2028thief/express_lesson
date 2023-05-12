@@ -6,13 +6,15 @@ enum EMediaType {
 }
 
 export interface IFavorite {
-  accountId: ObjectId;
+  account: ObjectId;
   // displayName: string;
   mediaType: EMediaType;
   mediaId: number;
   mediaTitle: string;
   mediaPoster: string;
   mediaRate: number;
+  createAt: Date;
+  updateAt: Date;
 }
 
 export interface IReview extends Omit<IFavorite, 'mediaRate'> {

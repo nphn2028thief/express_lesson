@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import reviewSchema from '../models/review_model';
+import accountSchema from '../models/auth_model';
 
 class ReviewController {
   getReviews = async (req: Request, res: Response) => {
-    const accountId = req.accountId;
+    const account = req.accountId;
 
     try {
-      const reviews = await reviewSchema.find({ accountId }).sort('-createdAt');
+      const reviews = await reviewSchema.find({ account }).sort('-createdAt');
       res.json(reviews);
     } catch (error) {
       res.status(500).send({
@@ -16,7 +17,7 @@ class ReviewController {
     }
   };
 
-  getReviewsByMediaId = async (req: Request, res: Response) => {
+  getReviewsByMedia = async (req: Request, res: Response) => {
     const { mediaType, mediaId } = req.params;
 
     if (!mediaType || !mediaId) {
@@ -26,7 +27,21 @@ class ReviewController {
     }
 
     try {
-      const reviews = await reviewSchema.find({ mediaType, mediaId }).sort('-createdAt');
+      // const reviews = await reviewSchema.find({ mediaType, mediaId }).sort('-createdAt');
+      // let user_ids: ObjectId[] = [];
+
+      // for (let i = 0; i < reviews.length; i++) {
+      //   user_ids.push(reviews[i].accountId);
+      // }
+
+      // const users = await accountSchema.find({ _id: { $in: user_ids } });
+
+      // res.json({
+      //   reviews,
+      //   users,
+      // });
+
+      const reviews = await reviewSchema.find({ mediaType, mediaId }).populate('account').sort('-createdAt');
       res.json(reviews);
     } catch (error) {
       res.status(500).send({
@@ -36,7 +51,7 @@ class ReviewController {
   };
 
   createReview = async (req: Request, res: Response) => {
-    const accountId = req.accountId;
+    const account = req.accountId;
     const { mediaType, mediaId, mediaTitle, mediaPoster, content } = req.body;
 
     if (!mediaType || !mediaId || !mediaTitle || !mediaPoster || !content) {
@@ -47,7 +62,7 @@ class ReviewController {
 
     try {
       const review = await reviewSchema.create({
-        accountId,
+        account,
         mediaType,
         mediaId,
         mediaTitle,
@@ -55,7 +70,10 @@ class ReviewController {
         content,
       });
 
-      res.json(review);
+      res.json({
+        message: 'Add review successfully!',
+        data: review,
+      });
     } catch (error) {
       return res.status(500).send({
         message: 'Oops! Something Went Wrong!',
@@ -74,13 +92,14 @@ class ReviewController {
 
       if (foundAndDeleteReview) {
         return res.json({
-          messagE: 'Delete review successfully!',
+          message: 'Delete review successfully!',
           reviewId,
         });
       }
 
       return res.status(404).send({
         message: 'No review found!',
+        reviewId,
       });
     } catch (error) {
       return res.status(500).send({
