@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
+import accountSchema from '../models/auth_model';
 import favoriteSchema from '../models/favorite_model';
 
 class FavoriteController {
@@ -14,16 +14,27 @@ class FavoriteController {
     }
 
     try {
-      const hasFavorite = await favoriteSchema.find({ account, mediaId });
+      const user = await accountSchema.findById({ _id: account });
+      const favorite = await favoriteSchema.findOne({ account, mediaId });
 
-      if (!hasFavorite.length) {
-        return res.status(404).send({
+      if (user) {
+        const check = user.favorites.find((item) => Number(item) === Number(mediaId));
+
+        if (check) {
+          return res.send({
+            message: true,
+            favoriteId: favorite?._id,
+          });
+        }
+
+        return res.send({
           message: false,
+          favoriteId: favorite?._id,
         });
       }
 
-      res.send({
-        message: true,
+      return res.send({
+        message: 'Not found!',
       });
     } catch (error: any) {
       res.status(500).send({
@@ -66,6 +77,16 @@ class FavoriteController {
         mediaRate,
       });
 
+      await accountSchema.findByIdAndUpdate(
+        { _id: account },
+        {
+          $push: {
+            favorites: Number(mediaId),
+          },
+        },
+        { new: true, validateModifiedOnly: true },
+      );
+
       res.json({
         message: 'Add media to favorite list successfully!',
         data: favorite,
@@ -78,6 +99,7 @@ class FavoriteController {
   };
 
   deleteFavorite = async (req: Request, res: Response) => {
+    const account = req.accountId;
     const { favoriteId } = req.params;
 
     if (!favoriteId) {
@@ -87,9 +109,16 @@ class FavoriteController {
     }
 
     try {
-      const _id = mongoose.Types.ObjectId.createFromHexString(favoriteId);
-
-      const foundAndDeletedFavorite = await favoriteSchema.findByIdAndDelete({ _id });
+      const foundAndDeletedFavorite = await favoriteSchema.findByIdAndDelete({ _id: favoriteId });
+      await accountSchema.findByIdAndUpdate(
+        { _id: account },
+        {
+          $pull: {
+            favorites: Number(foundAndDeletedFavorite?.mediaId),
+          },
+        },
+        { new: true, validateModifiedOnly: true },
+      );
 
       if (foundAndDeletedFavorite) {
         return res.json({

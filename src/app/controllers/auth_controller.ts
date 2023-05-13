@@ -91,7 +91,6 @@ class AuthController {
   getMe = async (req: Request, res: Response) => {
     const id = req.accountId;
 
-    // if (id) {
     const account = await accountSchema.findById({
       _id: mongoose.Types.ObjectId.createFromHexString(id),
     });
@@ -102,14 +101,15 @@ class AuthController {
       });
     }
 
-    res.json({
-      _id: account._id,
-      password: account.password,
-      firstName: account.firstName,
-      lastName: account.lastName,
-      image: account.image,
-    });
-    // }
+    // res.json({
+    //   _id: account._id,
+    //   password: account.password,
+    //   firstName: account.firstName,
+    //   lastName: account.lastName,
+    //   image: account.image,
+    // });
+
+    res.json(account);
   };
 
   updateMe = async (req: Request, res: Response) => {

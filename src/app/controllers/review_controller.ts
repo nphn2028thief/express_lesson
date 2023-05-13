@@ -61,8 +61,10 @@ class ReviewController {
     }
 
     try {
+      const userInfo = await accountSchema.findById({ _id: account });
+
       const review = await reviewSchema.create({
-        account,
+        account: userInfo,
         mediaType,
         mediaId,
         mediaTitle,
