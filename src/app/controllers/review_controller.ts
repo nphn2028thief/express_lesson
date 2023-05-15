@@ -27,20 +27,6 @@ class ReviewController {
     }
 
     try {
-      // const reviews = await reviewSchema.find({ mediaType, mediaId }).sort('-createdAt');
-      // let user_ids: ObjectId[] = [];
-
-      // for (let i = 0; i < reviews.length; i++) {
-      //   user_ids.push(reviews[i].accountId);
-      // }
-
-      // const users = await accountSchema.find({ _id: { $in: user_ids } });
-
-      // res.json({
-      //   reviews,
-      //   users,
-      // });
-
       const reviews = await reviewSchema.find({ mediaType, mediaId }).populate('account').sort('-createdAt');
       res.json(reviews);
     } catch (error) {
@@ -72,6 +58,16 @@ class ReviewController {
         content,
       });
 
+      await accountSchema.findByIdAndUpdate(
+        { _id: account },
+        {
+          $push: {
+            reviews: review._id,
+          },
+        },
+        { new: true, validateModifiedOnly: true },
+      );
+
       res.json({
         message: 'Add review successfully!',
         data: review,
@@ -85,12 +81,19 @@ class ReviewController {
 
   deleteReview = async (req: Request, res: Response) => {
     const { reviewId } = req.params;
-    const accountId = req.accountId;
+    const account = req.accountId;
 
     try {
-      const _reviewId = mongoose.Types.ObjectId.createFromHexString(reviewId);
-
-      const foundAndDeleteReview = await reviewSchema.findOneAndDelete({ _id: _reviewId, accountId });
+      const foundAndDeleteReview = await reviewSchema.findOneAndDelete({ _id: reviewId, account });
+      await accountSchema.findByIdAndUpdate(
+        { _id: account },
+        {
+          $pull: {
+            reviews: foundAndDeleteReview?._id,
+          },
+        },
+        { new: true, validateModifiedOnly: true },
+      );
 
       if (foundAndDeleteReview) {
         return res.json({

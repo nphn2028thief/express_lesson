@@ -99,8 +99,8 @@ class FavoriteController {
   };
 
   deleteFavorite = async (req: Request, res: Response) => {
-    const account = req.accountId;
     const { favoriteId } = req.params;
+    const account = req.accountId;
 
     if (!favoriteId) {
       return res.status(400).send({
@@ -109,7 +109,7 @@ class FavoriteController {
     }
 
     try {
-      const foundAndDeletedFavorite = await favoriteSchema.findByIdAndDelete({ _id: favoriteId });
+      const foundAndDeletedFavorite = await favoriteSchema.findOneAndDelete({ _id: favoriteId, account });
       await accountSchema.findByIdAndUpdate(
         { _id: account },
         {
