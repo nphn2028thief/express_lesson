@@ -145,33 +145,50 @@ class AuthController {
   };
 
   updatePassword = async (req: Request, res: Response) => {
-    const id = req.accountId;
+    const accountId = req.accountId;
     const { password, newPassword, confirmNewPassword } = req.body;
 
     if (!password || !newPassword || !confirmNewPassword || newPassword !== confirmNewPassword) {
       return res.send({
-        message: 'Invalid Data!',
+        message: 'Invalid data!',
       });
     }
 
     try {
-      if (id) {
-        const _id = mongoose.Types.ObjectId.createFromHexString(id);
+      const _id = mongoose.Types.ObjectId.createFromHexString(accountId);
 
-        const hash = bcrypt.hash(confirmNewPassword, 12);
+      const account = await accountSchema.findOne({ _id });
 
-        await accountSchema.findByIdAndUpdate(
-          _id,
-          {
-            password: hash,
-          },
-          { new: true },
-        );
-
-        res.send({
-          message: 'Change password successfully!',
+      if (!account) {
+        return res.status(403).send({
+          message: 'Oops! Something went wrong!',
         });
       }
+
+      const match = await bcrypt.compare(password, account.password);
+
+      if (!match) {
+        return res.status(403).send({
+          message: 'Pawword is not correct!',
+        });
+      }
+
+      const hash = await bcrypt.hash(confirmNewPassword, 12);
+
+      await accountSchema.findByIdAndUpdate(
+        { _id },
+        {
+          $set: {
+            password: hash,
+          },
+        },
+        { new: true, validateModifiedOnly: true },
+      );
+
+      res.json({
+        message: 'Change password successfully!',
+        newPassword: confirmNewPassword,
+      });
     } catch (error) {
       throw error;
     }
