@@ -3,9 +3,7 @@ import config from '../../config';
 
 const connect = async () => {
   try {
-    await mongoose.connect(config.databaseUrl, {
-      dbName: 'movie_db',
-    });
+    await mongoose.connect(config.databaseUrl);
     console.log('Connect Successfully!');
   } catch (error) {
     console.log('Connect Failure!', error);
